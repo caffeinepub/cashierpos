@@ -1,0 +1,111 @@
+@font-face {
+  font-family: "Cabinet Grotesk";
+  src: url("/assets/fonts/CabinetGrotesk-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("/assets/fonts/Satoshi-Variable.woff2") format("woff2");
+  font-weight: 300 900;
+  font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0.13 0.008 260;
+    --foreground: 0.94 0.008 260;
+    --card: 0.18 0.01 260;
+    --card-foreground: 0.94 0.008 260;
+    --popover: 0.18 0.01 260;
+    --popover-foreground: 0.94 0.008 260;
+    --primary: 0.78 0.16 78;
+    --primary-foreground: 0.13 0.008 260;
+    --secondary: 0.24 0.01 260;
+    --secondary-foreground: 0.94 0.008 260;
+    --muted: 0.22 0.01 260;
+    --muted-foreground: 0.58 0.015 260;
+    --accent: 0.26 0.015 260;
+    --accent-foreground: 0.94 0.008 260;
+    --destructive: 0.58 0.22 25;
+    --destructive-foreground: 0.98 0 0;
+    --border: 0.27 0.012 260;
+    --input: 0.22 0.01 260;
+    --ring: 0.78 0.16 78;
+    --radius: 0.5rem;
+    --chart-1: 0.78 0.16 78;
+    --chart-2: 0.65 0.18 160;
+    --chart-3: 0.6 0.18 240;
+    --chart-4: 0.7 0.18 300;
+    --chart-5: 0.65 0.2 50;
+    --sidebar: 0.16 0.01 260;
+    --sidebar-foreground: 0.94 0.008 260;
+    --sidebar-primary: 0.78 0.16 78;
+    --sidebar-primary-foreground: 0.13 0.008 260;
+    --sidebar-accent: 0.22 0.01 260;
+    --sidebar-accent-foreground: 0.94 0.008 260;
+    --sidebar-border: 0.27 0.012 260;
+    --sidebar-ring: 0.78 0.16 78;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-body;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+/* Amber glow effect for primary actions */
+.glow-amber {
+  box-shadow: 0 0 24px oklch(0.78 0.16 78 / 0.35), 0 0 48px
+    oklch(0.78 0.16 78 / 0.15);
+}
+
+.glow-amber:hover {
+  box-shadow: 0 0 32px oklch(0.78 0.16 78 / 0.5), 0 0 64px
+    oklch(0.78 0.16 78 / 0.25);
+}
+
+/* Subtle grid texture on background */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: linear-gradient(
+      oklch(0.27 0.012 260 / 0.4) 1px,
+      transparent 1px
+    ), linear-gradient(90deg, oklch(0.27 0.012 260 / 0.4) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: oklch(0.18 0.01 260);
+}
+::-webkit-scrollbar-thumb {
+  background: oklch(0.35 0.015 260);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.78 0.16 78);
+}
