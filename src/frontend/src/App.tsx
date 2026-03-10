@@ -1,11 +1,21 @@
+import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { History, Package, ShoppingCart, Zap } from "lucide-react";
+import {
+  History,
+  Loader2,
+  LogIn,
+  LogOut,
+  Package,
+  ShoppingCart,
+  Zap,
+} from "lucide-react";
 import { useState } from "react";
 import POSView from "./components/POSView";
 import ProductsAdmin from "./components/ProductsAdmin";
 import SalesHistory from "./components/SalesHistory";
+import { useInternetIdentity } from "./hooks/useInternetIdentity";
 import { useIsCallerAdmin } from "./hooks/useQueries";
 
 const queryClient = new QueryClient();
@@ -13,6 +23,10 @@ const queryClient = new QueryClient();
 function AppContent() {
   const { data: isAdmin } = useIsCallerAdmin();
   const [activeTab, setActiveTab] = useState("pos");
+  const { identity, login, clear, isLoggingIn } = useInternetIdentity();
+
+  const principal = identity?.getPrincipal().toString();
+  const shortPrincipal = principal ? `${principal.slice(0, 5)}...` : null;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -27,12 +41,48 @@ function AppContent() {
               CashierPOS
             </span>
           </div>
-          <div className="text-xs text-muted-foreground font-body">
-            {new Date().toLocaleDateString("en-US", {
-              weekday: "short",
-              month: "short",
-              day: "numeric",
-            })}
+
+          <div className="flex items-center gap-3">
+            <div className="text-xs text-muted-foreground font-body hidden sm:block">
+              {new Date().toLocaleDateString("en-US", {
+                weekday: "short",
+                month: "short",
+                day: "numeric",
+              })}
+            </div>
+
+            {identity ? (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground font-mono hidden sm:block">
+                  {shortPrincipal}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clear}
+                  data-ocid="header.secondary_button"
+                  className="gap-1.5 text-xs h-8"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <Button
+                size="sm"
+                onClick={login}
+                disabled={isLoggingIn}
+                data-ocid="header.login_button"
+                className="gap-1.5 text-xs h-8"
+              >
+                {isLoggingIn ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <LogIn className="w-3.5 h-3.5" />
+                )}
+                {isLoggingIn ? "Connecting..." : "Login"}
+              </Button>
+            )}
           </div>
         </div>
       </header>
