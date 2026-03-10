@@ -16,12 +16,10 @@ import POSView from "./components/POSView";
 import ProductsAdmin from "./components/ProductsAdmin";
 import SalesHistory from "./components/SalesHistory";
 import { useInternetIdentity } from "./hooks/useInternetIdentity";
-import { useIsCallerAdmin } from "./hooks/useQueries";
 
 const queryClient = new QueryClient();
 
 function AppContent() {
-  const { data: isAdmin } = useIsCallerAdmin();
   const [activeTab, setActiveTab] = useState("pos");
   const { identity, login, clear, isLoggingIn } = useInternetIdentity();
 
@@ -113,16 +111,14 @@ function AppContent() {
                 <History className="w-4 h-4" />
                 Sales History
               </TabsTrigger>
-              {isAdmin && (
-                <TabsTrigger
-                  value="products"
-                  data-ocid="nav.products.tab"
-                  className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-4 gap-2 font-body text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <Package className="w-4 h-4" />
-                  Products
-                </TabsTrigger>
-              )}
+              <TabsTrigger
+                value="products"
+                data-ocid="nav.products.tab"
+                className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-4 gap-2 font-body text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Package className="w-4 h-4" />
+                Products
+              </TabsTrigger>
             </TabsList>
           </div>
 
@@ -138,14 +134,12 @@ function AppContent() {
           >
             <SalesHistory />
           </TabsContent>
-          {isAdmin && (
-            <TabsContent
-              value="products"
-              className="flex-1 m-0 data-[state=inactive]:hidden"
-            >
-              <ProductsAdmin />
-            </TabsContent>
-          )}
+          <TabsContent
+            value="products"
+            className="flex-1 m-0 data-[state=inactive]:hidden"
+          >
+            <ProductsAdmin />
+          </TabsContent>
         </Tabs>
       </main>
 
