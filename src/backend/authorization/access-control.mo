@@ -21,18 +21,29 @@ module {
     };
   };
 
-  // First principal that calls this function becomes admin, all other principals become users.
+  // If the correct admin token is provided, the caller always becomes admin
+  // (removes admin from any previous holder). Without the token, first-time
+  // callers are registered as regular users.
   public func initialize(state : AccessControlState, caller : Principal, adminToken : Text, userProvidedToken : Text) {
     if (caller.isAnonymous()) { return };
-    switch (state.userRoles.get(caller)) {
-      case (?_) {};
-      case (null) {
-        if (not state.adminAssigned and userProvidedToken == adminToken) {
-          state.userRoles.add(caller, #admin);
-          state.adminAssigned := true;
-        } else {
-          state.userRoles.add(caller, #user);
-        };
+    let tokenMatches = userProvidedToken != "" and userProvidedToken == adminToken;
+    if (tokenMatches) {
+      // Remove admin from previous holder if any
+      if (state.adminAssigned) {
+        state.userRoles.keys().forEach(func(p) {
+          switch (state.userRoles.get(p)) {
+            case (?#admin) { state.userRoles.add(p, #user) };
+            case _ {};
+          };
+        });
+      };
+      state.userRoles.add(caller, #admin);
+      state.adminAssigned := true;
+    } else {
+      // Register as user only if not already registered
+      switch (state.userRoles.get(caller)) {
+        case (?_) {}; // already has a role
+        case (null) { state.userRoles.add(caller, #user) };
       };
     };
   };

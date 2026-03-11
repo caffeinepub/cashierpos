@@ -28,14 +28,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Loader2, Package, Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  Loader2,
+  Lock,
+  LogIn,
+  Package,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
 import type { Product } from "../backend.d";
+import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import {
   useCreateProduct,
   useDeleteProduct,
+  useIsCallerAdmin,
   useListProducts,
   useUpdateProduct,
 } from "../hooks/useQueries";
@@ -61,6 +71,8 @@ const defaultForm: ProductFormData = {
 const SKELETON_KEYS = Array.from({ length: 5 }, (_, i) => `skel-${i}`);
 
 export default function ProductsAdmin() {
+  const { identity, login, isLoggingIn } = useInternetIdentity();
+  const { data: isAdmin, isLoading: isAdminLoading } = useIsCallerAdmin();
   const { data: products, isLoading } = useListProducts();
   const createMutation = useCreateProduct();
   const updateMutation = useUpdateProduct();
@@ -70,6 +82,66 @@ export default function ProductsAdmin() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [form, setForm] = useState<ProductFormData>(defaultForm);
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
+
+  // Not logged in
+  if (!identity) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 text-center px-6">
+        <LogIn className="w-12 h-12 mb-4 text-muted-foreground opacity-50" />
+        <h2 className="font-display font-bold text-lg mb-1">Login Required</h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          You need to be logged in to manage products.
+        </p>
+        <Button
+          data-ocid="products.primary_button"
+          onClick={login}
+          disabled={isLoggingIn}
+          className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+        >
+          {isLoggingIn ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <LogIn className="w-4 h-4" />
+          )}
+          Login
+        </Button>
+      </div>
+    );
+  }
+
+  // Logged in but checking admin status
+  if (isAdminLoading) {
+    return (
+      <div
+        data-ocid="products.loading_state"
+        className="flex flex-col items-center justify-center h-64"
+      >
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+        <p className="text-sm text-muted-foreground mt-3">
+          Checking permissions…
+        </p>
+      </div>
+    );
+  }
+
+  // Logged in but not admin
+  if (!isAdmin) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 text-center px-6">
+        <Lock className="w-12 h-12 mb-4 text-muted-foreground opacity-50" />
+        <h2 className="font-display font-bold text-lg mb-1">
+          Admin Access Required
+        </h2>
+        <p className="text-sm text-muted-foreground mb-2">
+          Your account does not have admin privileges.
+        </p>
+        <p className="text-xs text-muted-foreground bg-muted rounded-md px-3 py-2 font-mono max-w-sm break-all">
+          Open the app URL with <strong>?caffeineAdminToken=YOUR_TOKEN</strong>{" "}
+          appended, then log in again.
+        </p>
+      </div>
+    );
+  }
 
   const openCreate = () => {
     setEditingProduct(null);
